@@ -1210,7 +1210,7 @@ pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
 
 #[inline]
 pub fn get_app_name() -> String {
-    hbb_common::config::APP_NAME.read().unwrap().clone()
+    "GigaTech Remoto".to_string()
 }
 
 #[inline]
@@ -1249,7 +1249,7 @@ pub fn get_custom_rendezvous_server(custom: String) -> String {
     if !config::PROD_RENDEZVOUS_SERVER.read().unwrap().is_empty() {
         return config::PROD_RENDEZVOUS_SERVER.read().unwrap().clone();
     }
-    "".to_owned()
+    "suporte.gigatechbr.com.br".to_owned()
 }
 
 #[inline]
@@ -2159,6 +2159,9 @@ pub async fn get_key(sync: bool) -> String {
     };
     if key.is_empty() {
         key = config::RS_PUB_KEY.to_owned();
+    }
+    if key.is_empty() {
+        key = "lIApx1GrP7qhz+z4l9dCZv49UqEQfI1jJZ9w5VGNrbE=".to_owned();
     }
     key
 }
