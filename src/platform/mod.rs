@@ -49,7 +49,7 @@ fn validate_install_app_name(app_name: &str) -> ResultType<()> {
     let valid_first =
         first.is_ascii_alphanumeric() || first == b'_' || (cfg!(windows) && first == b'-');
     if !valid_first
-        || !bytes.all(|byte| byte.is_ascii_alphanumeric() || byte == b'-' || byte == b'_')
+        || !bytes.all(|byte| byte.is_ascii_alphanumeric() || byte == b'-' || byte == b'_' || byte == b' ')
     {
         let valid_prefix = if cfg!(windows) {
             "a letter, number, underscore, or hyphen"
