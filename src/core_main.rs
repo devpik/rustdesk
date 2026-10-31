@@ -43,6 +43,8 @@ fn finish_macos_update(result: hbb_common::ResultType<()>) -> Option<CoreMainAct
 /// If it returns [`Some`], the action determines whether to start the UI or report failure.
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub fn core_main() -> Option<CoreMainAction> {
+    *hbb_common::config::PROD_RENDEZVOUS_SERVER.write().unwrap() = "suporte.gigatechbr.com.br".to_owned();
+    *hbb_common::config::APP_NAME.write().unwrap() = "GigaTech-Remoto".to_owned();
     if !crate::common::global_init() {
         return None;
     }
