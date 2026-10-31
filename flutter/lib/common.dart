@@ -3021,7 +3021,7 @@ int versionCmp(String v1, String v2) {
 }
 
 String getWindowName({WindowType? overrideType}) {
-  final name = bind.mainGetAppNameSync();
+  final name = bind.mainGetAppNameSync().replaceAll("-", " ");
   switch (overrideType ?? kWindowType) {
     case WindowType.Main:
       return name;
@@ -3731,7 +3731,7 @@ Color? disabledTextColor(BuildContext context, bool enabled) {
 }
 
 Widget loadPowered(BuildContext context) {
-  if (bind.mainGetBuildinOption(key: "hide-powered-by-me") == 'Y') {
+  if (true) {
     return SizedBox.shrink();
   }
   return MouseRegion(
