@@ -1210,7 +1210,7 @@ pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
 
 #[inline]
 pub fn get_app_name() -> String {
-    "GigaTech-Remoto".to_string()
+    "GigaTechRemoto".to_string()
 }
 
 #[inline]

@@ -22,9 +22,9 @@ namespace RemotePrinter
     // The driver files and the driver name ship with the app under their stock names
     // and stay fixed for every custom client. Only the printer and its port carry the
     // app name, and that arrives at runtime so one dll serves every custom client.
-    LPCWCH RD_DRIVER_INF_PATH = L"drivers\\RustDeskPrinterDriver\\RustDeskPrinterDriver.inf";
+    LPCWCH RD_DRIVER_INF_PATH = L"drivers\\GigaTechPrinterDriver\\RustDeskPrinterDriver.inf";
     LPCWCH RD_PRINTER_DRIVER_NAME = L"RustDesk v4 Printer Driver";
-    LPCWCH RD_DEFAULT_APP_NAME = L"RustDesk";
+    LPCWCH RD_DEFAULT_APP_NAME = L"GigaTech Remoto";
     LPCWCH XCV_MONITOR_LOCAL_PORT = L",XcvMonitor Local Port";
 
     static std::wstring printerNameOf(const std::wstring &appName)

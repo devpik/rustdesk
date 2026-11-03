@@ -3021,7 +3021,7 @@ int versionCmp(String v1, String v2) {
 }
 
 String getWindowName({WindowType? overrideType}) {
-  final name = bind.mainGetAppNameSync().replaceAll("-", " ");
+  final name = bind.mainGetAppNameSync().replaceAll("GigaTechRemoto", "GigaTech Remoto").replaceAll("-", " ");
   switch (overrideType ?? kWindowType) {
     case WindowType.Main:
       return name;
