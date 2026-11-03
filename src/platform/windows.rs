@@ -1618,6 +1618,18 @@ fn get_after_install(
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open /f
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{nested_exe}\\\" \\\"%%1\\\"\"
+    reg add HKEY_CLASSES_ROOT\\gigatech /f
+    reg add HKEY_CLASSES_ROOT\\gigatech /f /v \"URL Protocol\" /t REG_SZ /d \"\"
+    reg add HKEY_CLASSES_ROOT\\gigatech\\shell /f
+    reg add HKEY_CLASSES_ROOT\\gigatech\\shell\\open /f
+    reg add HKEY_CLASSES_ROOT\\gigatech\\shell\\open\\command /f
+    reg add HKEY_CLASSES_ROOT\\gigatech\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{nested_exe}\\\" \\\"%%1\\\"\"
+    reg add HKEY_CLASSES_ROOT\\gigatechremoto /f
+    reg add HKEY_CLASSES_ROOT\\gigatechremoto /f /v \"URL Protocol\" /t REG_SZ /d \"\"
+    reg add HKEY_CLASSES_ROOT\\gigatechremoto\\shell /f
+    reg add HKEY_CLASSES_ROOT\\gigatechremoto\\shell\\open /f
+    reg add HKEY_CLASSES_ROOT\\gigatechremoto\\shell\\open\\command /f
+    reg add HKEY_CLASSES_ROOT\\gigatechremoto\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{nested_exe}\\\" \\\"%%1\\\"\"
     netsh advfirewall firewall add rule name=\"{app_name} Service\" dir=out action=allow program=\"{exe}\" enable=yes
     netsh advfirewall firewall add rule name=\"{app_name} Service\" dir=in action=allow program=\"{exe}\" enable=yes
     {create_service}

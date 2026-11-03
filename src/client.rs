@@ -1810,7 +1810,12 @@ impl Client {
                 .with_context(|| "Failed to connect to rendezvous server")?;
 
             if !key.is_empty() && (!token.is_empty() || !switch_code.is_empty()) {
-                secure_tcp(&mut socket, key).await?;
+                if let Err(e) = secure_tcp(&mut socket, key).await {
+                    log::warn!("secure_tcp to relay fallback/skipped: {:?}", e);
+                    if let Ok(s) = connect_tcp(rendezvous_server, CONNECT_TIMEOUT).await {
+                        socket = s;
+                    }
+                }
             }
 
             ipv4 = socket.local_addr().is_ipv4();
