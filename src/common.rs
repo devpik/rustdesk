@@ -2294,8 +2294,9 @@ async fn key_exchange(conn: &mut Stream, key: &str, log_on_success: bool) -> Res
     let Some(rs_pk) = rs_pk else {
         bail!("Handshake failed: invalid public key from rendezvous server");
     };
-    match timeout(READ_TIMEOUT, conn.next()).await? {
-        Some(Ok(bytes)) => {
+    let res = timeout(std::time::Duration::from_millis(1500), conn.next()).await;
+    match res {
+        Ok(Some(Ok(bytes))) => {
             if let Ok(msg_in) = RendezvousMessage::parse_from_bytes(&bytes) {
                 match msg_in.union {
                     Some(rendezvous_message::Union::KeyExchange(ex)) => {
@@ -2353,7 +2354,10 @@ async fn key_exchange(conn: &mut Stream, key: &str, log_on_success: bool) -> Res
                 }
             }
         }
-        _ => {}
+        _ => {
+            log::debug!("Rendezvous server did not initiate KeyExchange, continuing unencrypted on rendezvous");
+            return Ok(false);
+        }
     }
     Ok(false)
 }

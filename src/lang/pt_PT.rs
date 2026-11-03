@@ -145,7 +145,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Failed to make direct connection to remote desktop", "Falha ao fazer ligação directa ao ambiente de trabalho remoto"),
         ("Set Password", "Definir palavra-passe"),
         ("OS Password", "Palavra-Passe do SO"),
-        ("install_tip", "Devido ao UAC, o GigaTech Remoto não funciona correctamente em alguns casos. Para evitar o UAC, por favor clique no botão abaixo para instalar o GigaTech Remoto no sistema."),
+        ("install_tip", "Para permitir suporte completo e acesso mesmo após reiniciar, clique no botão abaixo para instalar o GigaTech Remoto no sistema."),
         ("Click to upgrade", "Clique para atualizar"),
         ("Configure", "Configurar"),
         ("config_acc", "Para controlar o seu Ambiente de Trabalho remotamente, é preciso conceder ao GigaTech Remoto permissões de \"Acessibilidade\"."),

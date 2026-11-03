@@ -885,9 +885,13 @@ impl Client {
             }
         }
         if !exchanged && legacy_secure {
-            secure_tcp(&mut socket, &key)
-                .await
-                .map_err(|e| anyhow!("Failed to secure tcp: {}", e))?;
+            if let Err(e) = secure_tcp(&mut socket, &key).await {
+                log::warn!("secure_tcp to rendezvous skipped/fallback ({:?})", e);
+                if let Ok(s) = connect_tcp(&*rendezvous_server, CONNECT_TIMEOUT).await {
+                    socket = s;
+                    my_addr = socket.local_addr();
+                }
+            }
         }
         // A token or switch code has always taken this socket straight to the punch without
         // waiting for the UDP NAT test. The WebRTC exchange does not replace that wait, it only
