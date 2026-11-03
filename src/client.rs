@@ -1657,7 +1657,7 @@ impl Client {
         conn: &mut Stream,
     ) -> ResultType<Option<Vec<u8>>> {
         let rs_pk = get_rs_pk(if key.is_empty() {
-            config::RS_PUB_KEY
+            "lIApx1GrP7qhz+z4l9dCZv49UqEQfI1jJZ9w5VGNrbE="
         } else {
             key
         });
@@ -2920,7 +2920,7 @@ impl LoginConfigHandler {
             let server = server_key.next().unwrap_or_default();
             let args = server_key.next().unwrap_or_default();
             let key = if server == PUBLIC_SERVER {
-                config::RS_PUB_KEY.to_owned()
+                "lIApx1GrP7qhz+z4l9dCZv49UqEQfI1jJZ9w5VGNrbE=".to_owned()
             } else {
                 let mut args_map: HashMap<String, &str> = HashMap::new();
                 for arg in args.split('&') {
