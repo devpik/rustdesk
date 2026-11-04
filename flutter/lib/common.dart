@@ -2257,8 +2257,11 @@ bool handleUriLink({List<String>? cmdArgs, Uri? uri, String? uriString}) {
   List<String>? args;
   if (cmdArgs != null && cmdArgs.isNotEmpty) {
     args = cmdArgs;
-    // rustdesk <uri link>
-    if (args[0].startsWith(bind.mainUriPrefixSync())) {
+    // gigatech / rustdesk <uri link>
+    if (args[0].startsWith(bind.mainUriPrefixSync()) ||
+        args[0].startsWith('gigatech://') ||
+        args[0].startsWith('gigatechremoto://') ||
+        args[0].startsWith('rustdesk://')) {
       final uri = Uri.tryParse(args[0]);
       if (uri != null) {
         args = urlLinkToCmdArgs(uri);

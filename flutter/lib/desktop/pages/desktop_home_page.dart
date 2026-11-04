@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   var watchIsCanRecordAudio = false;
   Timer? _updateTimer;
   bool isCardClosed = false;
+  String _bannerTitle = 'GigaTech Remoto para Empresas';
+  String _bannerMessage =
+      'Velocidade com servidores no Brasil, sessões ilimitadas sem cortes e catálogo na nuvem para até 500 computadores.';
+  String _bannerBtnText = 'Conhecer Planos & Vantagens';
+  String _bannerUrl = 'https://suporte.gigatechbr.com.br/#planos';
+  bool _bannerEnabled = true;
 
   final RxBool _editHover = false.obs;
   final RxBool _block = false.obs;
@@ -92,6 +99,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       buildTip(context),
       if (!isOutgoingOnly) buildIDBoard(context),
       if (!isOutgoingOnly) buildPasswordBoard(context),
+      if (_bannerEnabled) buildGigaTechCommercialCard(),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),
@@ -696,9 +704,194 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
+
+  void _fetchCommercialBanner() async {
+    try {
+      final res = await http
+          .get(Uri.parse('https://suporte.gigatechbr.com.br/api/banner'))
+          .timeout(const Duration(seconds: 4));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data is Map && mounted) {
+          setState(() {
+            _bannerEnabled = data['enabled'] ?? true;
+            if (data['title'] != null && data['title'].toString().isNotEmpty) {
+              _bannerTitle = data['title'].toString();
+            }
+            if (data['message'] != null &&
+                data['message'].toString().isNotEmpty) {
+              _bannerMessage = data['message'].toString();
+            }
+            if (data['btn_text'] != null &&
+                data['btn_text'].toString().isNotEmpty) {
+              _bannerBtnText = data['btn_text'].toString();
+            }
+            if (data['url'] != null && data['url'].toString().isNotEmpty) {
+              _bannerUrl = data['url'].toString();
+            }
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Widget buildGigaTechCommercialCard() {
+    // Se o técnico/cliente estiver logado com conta corporativa, exibe badge elegante de conta ativa
+    final isLogin = gFFI.userModel.isLogin;
+    if (isLogin) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14, left: 16, right: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+          ),
+          border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.4)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF38BDF8).withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child:
+                  const Icon(Icons.verified, color: Color(0xFF38BDF8), size: 18),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'GigaTech Remoto Ativo',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    gFFI.userModel.displayNameOrUserName,
+                    style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 11,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Card Comercial Freemium Oficial GigaTech
+    return Container(
+      margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0B192C),
+            Color(0xFF1E3E62),
+            Color(0xFF0284C7),
+          ],
+        ),
+        border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.rocket_launch,
+                    color: Colors.white, size: 16),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _bannerTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _bannerMessage,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.92),
+              fontSize: 11.5,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                final uri = Uri.parse(_bannerUrl);
+                await launchUrl(uri);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF0F172A),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _bannerBtnText,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward, size: 13),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    _fetchCommercialBanner();
     _updateTimer = periodic_immediate(const Duration(seconds: 1), () async {
       await gFFI.serverModel.fetchID();
       final error = await bind.mainGetError();

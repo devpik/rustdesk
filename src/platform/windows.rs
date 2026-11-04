@@ -2209,7 +2209,28 @@ pub fn is_win_10_or_greater() -> bool {
     unsafe { is_windows_10_or_greater() > 0 }
 }
 
+pub fn register_user_protocol_handler() {
+    if let Ok(exe_path) = std::env::current_exe() {
+        let exe_str = exe_path.to_string_lossy().to_string();
+        let cmd = format!("\"{}\" \"%1\"", exe_str);
+
+        let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+        for proto in &["gigatech", "gigatechremoto"] {
+            let key_path = format!("Software\\Classes\\{}", proto);
+            if let Ok((key, _)) = hkcu.create_subkey(&key_path) {
+                let _ = key.set_value("", &format!("URL:{} Protocol", proto));
+                let _ = key.set_value("URL Protocol", &"");
+                let cmd_path = format!("Software\\Classes\\{}\\shell\\open\\command", proto);
+                if let Ok((cmd_key, _)) = hkcu.create_subkey(&cmd_path) {
+                    let _ = cmd_key.set_value("", &cmd);
+                }
+            }
+        }
+    }
+}
+
 pub fn bootstrap() -> bool {
+    register_user_protocol_handler();
     if let Ok(lic) = get_license_from_exe_name() {
         *config::EXE_RENDEZVOUS_SERVER.write().unwrap() = lic.host.clone();
     }

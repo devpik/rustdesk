@@ -78,6 +78,9 @@ pub fn core_main() -> Option<CoreMainAction> {
                 "--rdp",
             ]
             .contains(&arg.as_str())
+                || arg.starts_with("gigatech://")
+                || arg.starts_with("gigatechremoto://")
+                || arg.starts_with("rustdesk://")
             {
                 _is_flutter_invoke_new_connection = true;
             }
@@ -762,7 +765,15 @@ fn core_main_invoke_new_connection(mut args: std::env::Args) -> Option<Vec<Strin
     let mut authority = None;
     let mut id = None;
     let mut param_array = vec![];
+    let mut uni_links = String::new();
     while let Some(arg) = args.next() {
+        if arg.starts_with("gigatech://")
+            || arg.starts_with("gigatechremoto://")
+            || arg.starts_with("rustdesk://")
+        {
+            uni_links = arg;
+            break;
+        }
         match arg.as_str() {
             "--connect" | "--play" | "--file-transfer" | "--view-camera" | "--port-forward"
             | "--terminal" | "--rdp" => {
@@ -786,24 +797,25 @@ fn core_main_invoke_new_connection(mut args: std::env::Args) -> Option<Vec<Strin
             _ => {}
         }
     }
-    let mut uni_links = Default::default();
-    if let Some(authority) = authority {
-        if let Some(mut id) = id {
-            let app_name = crate::get_app_name();
-            let ext = format!(".{}", app_name.to_lowercase());
-            if id.ends_with(&ext) {
-                id = id.replace(&ext, "");
+    if uni_links.is_empty() {
+        if let Some(authority) = authority {
+            if let Some(mut id) = id {
+                let app_name = crate::get_app_name();
+                let ext = format!(".{}", app_name.to_lowercase());
+                if id.ends_with(&ext) {
+                    id = id.replace(&ext, "");
+                }
+                let params = param_array.join("&");
+                let params_flag = if params.is_empty() { "" } else { "?" };
+                uni_links = format!(
+                    "{}{}/{}{}{}",
+                    crate::get_uri_prefix(),
+                    authority,
+                    id,
+                    params_flag,
+                    params
+                );
             }
-            let params = param_array.join("&");
-            let params_flag = if params.is_empty() { "" } else { "?" };
-            uni_links = format!(
-                "{}{}/{}{}{}",
-                crate::get_uri_prefix(),
-                authority,
-                id,
-                params_flag,
-                params
-            );
         }
     }
     if uni_links.is_empty() {
@@ -823,7 +835,7 @@ fn core_main_invoke_new_connection(mut args: std::env::Args) -> Option<Vec<Strin
             uni_links.as_str(),
             false,
         );
-        return if res { None } else { Some(Vec::new()) };
+        return if res { None } else { Some(vec![uni_links]) };
     }
     #[cfg(target_os = "macos")]
     {
