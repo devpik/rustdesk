@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
+import 'package:http/http.dart' as http;
 
 import '../../common.dart';
 import '../../common/formatter/id_formatter.dart';
@@ -142,7 +143,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                     onTap: () =>
                         launchUrlString('https://suporte.gigatechbr.com.br/'),
                     child: Text(
-                      'GigaTech Remoto  •  Servidores no Brasil  •  suporte.gigatechbr.com.br',
+                      'GigaTech Remote  •  Encrypted & Fast  •  suporte.gigatechbr.com.br',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ).marginOnly(right: 16),
@@ -231,11 +232,50 @@ class _ConnectionPageState extends State<ConnectionPage>
 
   final _menuOpen = false.obs;
 
+  static Map<String, dynamic>? _remoteBanner;
+  static bool _bannerFetched = false;
+
+  String _getLang() {
+    try {
+      final saved = bind.mainGetLocalOption(key: 'lang').trim().toLowerCase();
+      if (saved.isNotEmpty) {
+        if (saved.startsWith('pt')) return 'pt';
+        if (saved.startsWith('es')) return 'es';
+        return 'en';
+      }
+    } catch (_) {}
+    try {
+      final loc = (localeName ?? '').toString().toLowerCase();
+      if (loc.startsWith('pt')) return 'pt';
+      if (loc.startsWith('es')) return 'es';
+    } catch (_) {}
+    return 'en';
+  }
+
+  void _fetchBanner() async {
+    if (_bannerFetched && _remoteBanner != null) return;
+    _bannerFetched = true;
+    try {
+      final lang = _getLang();
+      final uri = Uri.parse('https://suporte.gigatechbr.com.br/api/banner?lang=$lang');
+      final res = await http.get(uri).timeout(const Duration(seconds: 4));
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        if (data is Map<String, dynamic> && mounted) {
+          setState(() {
+            _remoteBanner = data;
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
   @override
   void initState() {
     super.initState();
     _allPeersLoader.init(setState);
     _idFocusNode.addListener(onFocusChanged);
+    _fetchBanner();
     if (_idController.text.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final lastRemoteId = await bind.mainGetLastRemoteId();
@@ -353,11 +393,69 @@ class _ConnectionPageState extends State<ConnectionPage>
   }
 
   void _openSite([String path = '']) {
-    launchUrlString('https://suporte.gigatechbr.com.br/$path');
+    final lang = _getLang();
+    final p = path.isNotEmpty ? path : '#planos';
+    launchUrlString('https://suporte.gigatechbr.com.br/?lang=$lang$p');
   }
 
   /// Card de marketing ao lado do campo de ID.
   Widget _buildHeroPromo(BuildContext context) {
+    if (_remoteBanner != null && _remoteBanner!['enabled'] == false) {
+      return const SizedBox.shrink();
+    }
+
+    final lang = _getLang();
+    String title;
+    List<String> bullets;
+    String btnText;
+    String btnUrl;
+
+    if (_remoteBanner != null &&
+        _remoteBanner!['title'] != null &&
+        _remoteBanner!['title'].toString().isNotEmpty) {
+      title = _remoteBanner!['title'].toString();
+      final rawMsg = _remoteBanner!['message']?.toString() ?? '';
+      if (rawMsg.contains('\n')) {
+        bullets = rawMsg.split('\n').where((s) => s.trim().isNotEmpty).toList();
+      } else if (rawMsg.contains(';')) {
+        bullets = rawMsg.split(';').where((s) => s.trim().isNotEmpty).toList();
+      } else {
+        bullets = [rawMsg];
+      }
+      btnText = _remoteBanner!['btn_text']?.toString() ??
+          (lang == 'pt' ? 'Conhecer planos' : (lang == 'es' ? 'Ver planes' : 'Explore Plans'));
+      btnUrl = _remoteBanner!['url']?.toString() ?? '';
+    } else {
+      if (lang == 'pt') {
+        title = 'Suporte remoto profissional e seguro';
+        bullets = [
+          'Servidores dedicados de alta velocidade e baixa latência',
+          'Criptografia de ponta a ponta',
+          'Catálogo de computadores na nuvem e transferência rápida',
+        ];
+        btnText = 'Conhecer planos';
+        btnUrl = '';
+      } else if (lang == 'es') {
+        title = 'Soporte remoto profesional y seguro';
+        bullets = [
+          'Servidores dedicados de alta velocidad y baja latencia',
+          'Cifrado militar de extremo a extremo',
+          'Catálogo de equipos en la nube y transferencia rápida',
+        ];
+        btnText = 'Ver planes';
+        btnUrl = '';
+      } else {
+        title = 'Professional & Secure Remote Support';
+        bullets = [
+          'High-speed dedicated cloud servers with low latency',
+          'End-to-end military-grade encryption',
+          'Cloud device catalog and fast file transfer',
+        ];
+        btnText = 'Explore Plans';
+        btnUrl = '';
+      }
+    }
+
     Widget bullet(IconData i, String s) => Padding(
           padding: const EdgeInsets.only(bottom: 5),
           child: Row(children: [
@@ -366,10 +464,14 @@ class _ConnectionPageState extends State<ConnectionPage>
             Expanded(
                 child: Text(s,
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     style: const TextStyle(
-                        color: Colors.white, fontSize: 12.5, height: 1.2))),
+                        color: Colors.white, fontSize: 12.0, height: 1.2))),
           ]),
         );
+
+    final bulletIcons = [Icons.bolt, Icons.lock_outline, Icons.devices_other];
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 560),
       height: 168,
@@ -386,24 +488,28 @@ class _ConnectionPageState extends State<ConnectionPage>
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Suporte remoto profissional, feito no Brasil',
+          Text(title,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800)),
-          const SizedBox(height: 10),
-          bullet(Icons.bolt, 'Servidores nacionais: conexão rápida e estável'),
-          bullet(Icons.lock_outline, 'Criptografia de ponta a ponta'),
-          bullet(Icons.folder_copy_outlined,
-              'Catálogo de PCs na nuvem e transferência de arquivos'),
+          const SizedBox(height: 8),
+          for (int i = 0; i < bullets.length && i < 3; i++)
+            bullet(bulletIcons[i % bulletIcons.length], bullets[i]),
           Align(
             alignment: Alignment.centerLeft,
             child: ElevatedButton.icon(
-              onPressed: () => _openSite('#planos'),
+              onPressed: () {
+                if (btnUrl.isNotEmpty) {
+                  launchUrlString(btnUrl);
+                } else {
+                  _openSite('#planos');
+                }
+              },
               icon: const Icon(Icons.workspace_premium, size: 15),
-              label: const Text('Conhecer planos',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              label: Text(btnText,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: const Color(0xFF0F172A),
@@ -419,6 +525,7 @@ class _ConnectionPageState extends State<ConnectionPage>
 
   /// Faixa de diferenciais abaixo da lista de computadores.
   Widget _buildFeatureStrip(BuildContext context) {
+    final lang = _getLang();
     Widget tile(IconData i, String t, String s) => Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -454,18 +561,47 @@ class _ConnectionPageState extends State<ConnectionPage>
             ]),
           ),
         );
-    return SizedBox(
-      height: 68,
-      child: Row(children: [
-        tile(Icons.flag_outlined, 'Servidores no Brasil', 'Baixa latência'),
-        const SizedBox(width: 8),
-        tile(Icons.shield_outlined, 'Seguro', 'Acesso criptografado'),
-        const SizedBox(width: 8),
-        tile(Icons.devices_other, 'Multiplataforma', 'Windows, Mac, Linux'),
-        const SizedBox(width: 8),
-        tile(Icons.support_agent, 'Suporte GigaTech', 'Atendimento humano'),
-      ]),
-    );
+
+    if (lang == 'pt') {
+      return SizedBox(
+        height: 68,
+        child: Row(children: [
+          tile(Icons.bolt, 'Alta Velocidade', 'Baixa latência'),
+          const SizedBox(width: 8),
+          tile(Icons.shield_outlined, 'Seguro', 'Acesso criptografado'),
+          const SizedBox(width: 8),
+          tile(Icons.devices_other, 'Multiplataforma', 'Windows, Mac, Linux'),
+          const SizedBox(width: 8),
+          tile(Icons.support_agent, 'Suporte GigaTech', 'Atendimento dedicado'),
+        ]),
+      );
+    } else if (lang == 'es') {
+      return SizedBox(
+        height: 68,
+        child: Row(children: [
+          tile(Icons.bolt, 'Alta Velocidad', 'Baja latencia'),
+          const SizedBox(width: 8),
+          tile(Icons.shield_outlined, 'Seguro', 'Acceso cifrado'),
+          const SizedBox(width: 8),
+          tile(Icons.devices_other, 'Multiplataforma', 'Windows, Mac, Linux'),
+          const SizedBox(width: 8),
+          tile(Icons.support_agent, 'Soporte GigaTech', 'Atención dedicada'),
+        ]),
+      );
+    } else {
+      return SizedBox(
+        height: 68,
+        child: Row(children: [
+          tile(Icons.bolt, 'High Speed', 'Low latency servers'),
+          const SizedBox(width: 8),
+          tile(Icons.shield_outlined, 'Secure', 'Encrypted connection'),
+          const SizedBox(width: 8),
+          tile(Icons.devices_other, 'Multiplatform', 'Windows, Mac, Linux'),
+          const SizedBox(width: 8),
+          tile(Icons.support_agent, 'GigaTech Support', 'Dedicated support'),
+        ]),
+      );
+    }
   }
 
   /// Callback for the connect button.
