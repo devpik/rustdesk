@@ -1249,7 +1249,7 @@ pub fn get_custom_rendezvous_server(custom: String) -> String {
     if !config::PROD_RENDEZVOUS_SERVER.read().unwrap().is_empty() {
         return config::PROD_RENDEZVOUS_SERVER.read().unwrap().clone();
     }
-    "suporte.gigatechbr.com.br".to_owned()
+    "remote.getgigatech.com".to_owned()
 }
 
 #[inline]
@@ -1281,8 +1281,12 @@ fn get_api_server_(api: String, custom: String) -> String {
         return api.to_owned();
     }
     let s0 = get_custom_rendezvous_server(custom);
-    if s0 == "suporte.gigatechbr.com.br" || s0.is_empty() {
-        return "https://suporte.gigatechbr.com.br".to_owned();
+    if s0 == "remote.getgigatech.com"
+        || s0 == "remoto.getgigatech.com"
+        || s0 == "suporte.gigatechbr.com.br"
+        || s0.is_empty()
+    {
+        return "https://remote.getgigatech.com".to_owned();
     }
     let s = crate::increase_port(&s0, -2);
     if s == s0 {

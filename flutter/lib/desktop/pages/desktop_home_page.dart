@@ -54,7 +54,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   String _bannerMessage =
       'Velocidade com servidores no Brasil, sessões ilimitadas sem cortes e catálogo na nuvem para até 500 computadores.';
   String _bannerBtnText = 'Conhecer Planos & Vantagens';
-  String _bannerUrl = 'https://suporte.gigatechbr.com.br/#planos';
+  String _bannerUrl = 'https://remote.getgigatech.com/#planos';
   bool _bannerEnabled = true;
 
   final RxBool _editHover = false.obs;
@@ -708,7 +708,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   void _fetchCommercialBanner() async {
     try {
       final res = await http
-          .get(Uri.parse('https://suporte.gigatechbr.com.br/api/banner'))
+          .get(Uri.parse('https://remote.getgigatech.com/api/banner'))
           .timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);

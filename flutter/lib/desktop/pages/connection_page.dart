@@ -42,7 +42,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
   double? get height => bind.isIncomingOnly() ? null : em * 3;
 
   void onUsePublicServerGuide() {
-    const url = "https://suporte.gigatechbr.com.br/#planos";
+    const url = "https://remote.getgigatech.com/#planos";
     canLaunchUrlString(url).then((can) {
       if (can) {
         launchUrlString(url);
@@ -141,9 +141,9 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                   alignment: Alignment.centerRight,
                   child: InkWell(
                     onTap: () =>
-                        launchUrlString('https://suporte.gigatechbr.com.br/'),
+                        launchUrlString('https://remote.getgigatech.com/'),
                     child: Text(
-                      'GigaTech Remote  •  Encrypted & Fast  •  suporte.gigatechbr.com.br',
+                      'GigaTech Remote  •  Encrypted & Fast  •  remote.getgigatech.com',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ).marginOnly(right: 16),
@@ -257,7 +257,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     _bannerFetched = true;
     try {
       final lang = _getLang();
-      final uri = Uri.parse('https://suporte.gigatechbr.com.br/api/banner?lang=$lang');
+      final uri = Uri.parse('https://remote.getgigatech.com/api/banner?lang=$lang');
       final res = await http.get(uri).timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
@@ -395,7 +395,7 @@ class _ConnectionPageState extends State<ConnectionPage>
   void _openSite([String path = '']) {
     final lang = _getLang();
     final p = path.isNotEmpty ? path : '#planos';
-    launchUrlString('https://suporte.gigatechbr.com.br/?lang=$lang$p');
+    launchUrlString('https://remote.getgigatech.com/?lang=$lang$p');
   }
 
   /// Card de marketing ao lado do campo de ID.

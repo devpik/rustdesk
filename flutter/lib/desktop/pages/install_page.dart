@@ -213,9 +213,9 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                           InkWell(
                             hoverColor: Colors.transparent,
                             onTap: () => launchUrlString(
-                                'https://suporte.gigatechbr.com.br'),
+                                'https://remote.getgigatech.com'),
                             child: Tooltip(
-                              message: 'https://suporte.gigatechbr.com.br',
+                              message: 'https://remote.getgigatech.com',
                               child: Row(children: [
                                 Icon(Icons.launch_outlined, size: 16)
                                     .marginOnly(right: 5),

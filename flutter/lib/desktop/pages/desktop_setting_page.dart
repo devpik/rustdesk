@@ -2617,7 +2617,7 @@ class _AboutState extends State<_About> {
                       .marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://suporte.gigatechbr.com.br');
+                    launchUrlString('https://remote.getgigatech.com');
                   },
                   child: Text(
                     translate('Privacy Statement'),
@@ -2625,7 +2625,7 @@ class _AboutState extends State<_About> {
                   ).marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://suporte.gigatechbr.com.br');
+                    launchUrlString('https://remote.getgigatech.com');
                   },
                   child: Text(
                     translate('Website'),

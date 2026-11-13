@@ -3741,7 +3741,7 @@ Widget loadPowered(BuildContext context) {
     cursor: SystemMouseCursors.click,
     child: GestureDetector(
       onTap: () {
-        launchUrl(Uri.parse('https://suporte.gigatechbr.com.br'));
+        launchUrl(Uri.parse('https://remote.getgigatech.com'));
       },
       child: Opacity(
           opacity: 0.5,
