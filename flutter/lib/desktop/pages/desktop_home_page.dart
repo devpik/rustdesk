@@ -50,11 +50,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   var watchIsCanRecordAudio = false;
   Timer? _updateTimer;
   bool isCardClosed = false;
-  String _bannerTitle = 'GigaTech Remoto para Empresas';
+  String _bannerTitle = 'Quantix Remoto para Empresas';
   String _bannerMessage =
       'Velocidade com servidores no Brasil, sessões ilimitadas sem cortes e catálogo na nuvem para até 500 computadores.';
   String _bannerBtnText = 'Conhecer Planos & Vantagens';
-  String _bannerUrl = 'https://remote.getgigatech.com/#planos';
+  String _bannerUrl = 'https://remote.2048quantix.com/#planos';
   bool _bannerEnabled = true;
 
   final RxBool _editHover = false.obs;
@@ -707,8 +707,23 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
   void _fetchCommercialBanner() async {
     try {
+      String langParam = 'pt';
+      try {
+        final saved = bind.mainGetLocalOption(key: kCommConfKeyLang).trim().toLowerCase();
+        if (saved.startsWith('es')) {
+          langParam = 'es';
+        } else if (saved.startsWith('fr')) {
+          langParam = 'fr';
+        } else if (saved.startsWith('de')) {
+          langParam = 'de';
+        } else if (saved.startsWith('en')) {
+          langParam = 'en';
+        } else if (saved.startsWith('pt')) {
+          langParam = 'pt';
+        }
+      } catch (_) {}
       final res = await http
-          .get(Uri.parse('https://remote.getgigatech.com/api/banner'))
+          .get(Uri.parse('https://remote.2048quantix.com/api/banner?lang=$langParam'))
           .timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -745,20 +760,20 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: const LinearGradient(
-            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+            colors: [Color(0xFF111216), Color(0xFF182226)],
           ),
-          border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.4)),
+          border: Border.all(color: const Color(0xFF55D8CC).withOpacity(0.45)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFF38BDF8).withOpacity(0.15),
+                color: const Color(0xFF55D8CC).withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
               child:
-                  const Icon(Icons.verified, color: Color(0xFF38BDF8), size: 18),
+                  const Icon(Icons.verified, color: Color(0xFF55D8CC), size: 18),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -766,7 +781,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'GigaTech Remoto Ativo',
+                    'Quantix Remoto Ativo',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -789,7 +804,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       );
     }
 
-    // Card Comercial Freemium Oficial GigaTech
+    // Card Comercial Freemium Oficial Quantix
     return Container(
       margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
       decoration: BoxDecoration(
@@ -798,15 +813,15 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF0B192C),
-            Color(0xFF1E3E62),
-            Color(0xFF0284C7),
+            Color(0xFF111216),
+            Color(0xFF13383A),
+            Color(0xFF0F766E),
           ],
         ),
-        border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.4)),
+        border: Border.all(color: const Color(0xFF55D8CC).withOpacity(0.45)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0284C7).withOpacity(0.15),
+            color: const Color(0xFF0F766E).withOpacity(0.22),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

@@ -1210,7 +1210,7 @@ pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
 
 #[inline]
 pub fn get_app_name() -> String {
-    "GigaTechRemoto".to_string()
+    "QuantixRemoto".to_string()
 }
 
 #[inline]
@@ -1220,7 +1220,7 @@ pub fn is_rustdesk() -> bool {
 
 #[inline]
 pub fn get_uri_prefix() -> String {
-    "gigatech://".to_string()
+    "quantix://".to_string()
 }
 
 #[cfg(target_os = "macos")]
@@ -1249,7 +1249,7 @@ pub fn get_custom_rendezvous_server(custom: String) -> String {
     if !config::PROD_RENDEZVOUS_SERVER.read().unwrap().is_empty() {
         return config::PROD_RENDEZVOUS_SERVER.read().unwrap().clone();
     }
-    "remote.getgigatech.com".to_owned()
+    "remote.2048quantix.com".to_owned()
 }
 
 #[inline]
@@ -1281,12 +1281,13 @@ fn get_api_server_(api: String, custom: String) -> String {
         return api.to_owned();
     }
     let s0 = get_custom_rendezvous_server(custom);
-    if s0 == "remote.getgigatech.com"
+    if s0 == "remote.2048quantix.com"
+        || s0 == "remote.getgigatech.com"
         || s0 == "remoto.getgigatech.com"
         || s0 == "suporte.gigatechbr.com.br"
         || s0.is_empty()
     {
-        return "https://remote.getgigatech.com".to_owned();
+        return "https://remote.2048quantix.com".to_owned();
     }
     let s = crate::increase_port(&s0, -2);
     if s == s0 {

@@ -42,7 +42,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
   double? get height => bind.isIncomingOnly() ? null : em * 3;
 
   void onUsePublicServerGuide() {
-    const url = "https://remote.getgigatech.com/#planos";
+    const url = "https://remote.2048quantix.com/#planos";
     canLaunchUrlString(url).then((can) {
       if (can) {
         launchUrlString(url);
@@ -141,9 +141,9 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                   alignment: Alignment.centerRight,
                   child: InkWell(
                     onTap: () =>
-                        launchUrlString('https://remote.getgigatech.com/'),
+                        launchUrlString('https://remote.2048quantix.com/'),
                     child: Text(
-                      'GigaTech Remote  •  Encrypted & Fast  •  remote.getgigatech.com',
+                      'Quantix Remote  •  Encrypted & Fast  •  remote.2048quantix.com',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ).marginOnly(right: 16),
@@ -241,6 +241,8 @@ class _ConnectionPageState extends State<ConnectionPage>
       if (saved.isNotEmpty) {
         if (saved.startsWith('pt')) return 'pt';
         if (saved.startsWith('es')) return 'es';
+        if (saved.startsWith('fr')) return 'fr';
+        if (saved.startsWith('de')) return 'de';
         return 'en';
       }
     } catch (_) {}
@@ -248,6 +250,8 @@ class _ConnectionPageState extends State<ConnectionPage>
       final loc = (localeName ?? '').toString().toLowerCase();
       if (loc.startsWith('pt')) return 'pt';
       if (loc.startsWith('es')) return 'es';
+      if (loc.startsWith('fr')) return 'fr';
+      if (loc.startsWith('de')) return 'de';
     } catch (_) {}
     return 'en';
   }
@@ -257,7 +261,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     _bannerFetched = true;
     try {
       final lang = _getLang();
-      final uri = Uri.parse('https://remote.getgigatech.com/api/banner?lang=$lang');
+      final uri = Uri.parse('https://remote.2048quantix.com/api/banner?lang=$lang');
       final res = await http.get(uri).timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
@@ -395,7 +399,7 @@ class _ConnectionPageState extends State<ConnectionPage>
   void _openSite([String path = '']) {
     final lang = _getLang();
     final p = path.isNotEmpty ? path : '#planos';
-    launchUrlString('https://remote.getgigatech.com/?lang=$lang$p');
+    launchUrlString('https://remote.2048quantix.com/?lang=$lang$p');
   }
 
   /// Card de marketing ao lado do campo de ID.
@@ -444,6 +448,24 @@ class _ConnectionPageState extends State<ConnectionPage>
         ];
         btnText = 'Ver planes';
         btnUrl = '';
+      } else if (lang == 'fr') {
+        title = 'Support à distance professionnel et sécurisé';
+        bullets = [
+          'Serveurs cloud dédiés haute vitesse et faible latence',
+          'Chiffrement militaire de bout en bout',
+          'Répertoire cloud des appareils et transfert rapide',
+        ];
+        btnText = 'Voir les forfaits';
+        btnUrl = '';
+      } else if (lang == 'de') {
+        title = 'Professioneller & sicherer Fernzugriff';
+        bullets = [
+          'Schnelle dedizierte Cloud-Server mit geringer Latenz',
+          'Ende-zu-Ende-Verschlüsselung nach Militärstandard',
+          'Cloud-Geräteverzeichnis und schnelle Dateiübertragung',
+        ];
+        btnText = 'Tarife ansehen';
+        btnUrl = '';
       } else {
         title = 'Professional & Secure Remote Support';
         bullets = [
@@ -459,7 +481,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     Widget bullet(IconData i, String s) => Padding(
           padding: const EdgeInsets.only(bottom: 5),
           child: Row(children: [
-            Icon(i, size: 16, color: const Color(0xFF7DD3FC)),
+            Icon(i, size: 16, color: const Color(0xFF55D8CC)),
             const SizedBox(width: 8),
             Expanded(
                 child: Text(s,
@@ -481,8 +503,8 @@ class _ConnectionPageState extends State<ConnectionPage>
         gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF0B192C), Color(0xFF1E3E62), Color(0xFF0284C7)]),
-        border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.35)),
+            colors: [Color(0xFF111216), Color(0xFF13383A), Color(0xFF0F766E)]),
+        border: Border.all(color: const Color(0xFF55D8CC).withOpacity(0.35)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -533,10 +555,10 @@ class _ConnectionPageState extends State<ConnectionPage>
               borderRadius: BorderRadius.circular(10),
               color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
               border:
-                  Border.all(color: const Color(0xFF38BDF8).withOpacity(0.25)),
+                  Border.all(color: const Color(0xFF55D8CC).withOpacity(0.25)),
             ),
             child: Row(children: [
-              Icon(i, color: const Color(0xFF38BDF8), size: 24),
+              Icon(i, color: const Color(0xFF55D8CC), size: 24),
               const SizedBox(width: 10),
               Expanded(
                   child: Column(
@@ -572,7 +594,7 @@ class _ConnectionPageState extends State<ConnectionPage>
           const SizedBox(width: 8),
           tile(Icons.devices_other, 'Multiplataforma', 'Windows, Mac, Linux'),
           const SizedBox(width: 8),
-          tile(Icons.support_agent, 'Suporte GigaTech', 'Atendimento dedicado'),
+          tile(Icons.support_agent, 'Suporte Quantix', 'Atendimento dedicado'),
         ]),
       );
     } else if (lang == 'es') {
@@ -585,7 +607,33 @@ class _ConnectionPageState extends State<ConnectionPage>
           const SizedBox(width: 8),
           tile(Icons.devices_other, 'Multiplataforma', 'Windows, Mac, Linux'),
           const SizedBox(width: 8),
-          tile(Icons.support_agent, 'Soporte GigaTech', 'Atención dedicada'),
+          tile(Icons.support_agent, 'Soporte Quantix', 'Atención dedicada'),
+        ]),
+      );
+    } else if (lang == 'fr') {
+      return SizedBox(
+        height: 68,
+        child: Row(children: [
+          tile(Icons.bolt, 'Haute Vitesse', 'Faible latence'),
+          const SizedBox(width: 8),
+          tile(Icons.shield_outlined, 'Sécurisé', 'Connexion chiffrée'),
+          const SizedBox(width: 8),
+          tile(Icons.devices_other, 'Multiplateforme', 'Windows, Mac, Linux'),
+          const SizedBox(width: 8),
+          tile(Icons.support_agent, 'Support Quantix', 'Assistance dédiée'),
+        ]),
+      );
+    } else if (lang == 'de') {
+      return SizedBox(
+        height: 68,
+        child: Row(children: [
+          tile(Icons.bolt, 'Hohe Geschwindigkeit', 'Niedrige Latenz'),
+          const SizedBox(width: 8),
+          tile(Icons.shield_outlined, 'Sicher', 'Verschlüsselte Verbindung'),
+          const SizedBox(width: 8),
+          tile(Icons.devices_other, 'Plattformübergreifend', 'Windows, Mac, Linux'),
+          const SizedBox(width: 8),
+          tile(Icons.support_agent, 'Quantix-Support', 'Dedizierter Support'),
         ]),
       );
     } else {
@@ -598,7 +646,7 @@ class _ConnectionPageState extends State<ConnectionPage>
           const SizedBox(width: 8),
           tile(Icons.devices_other, 'Multiplatform', 'Windows, Mac, Linux'),
           const SizedBox(width: 8),
-          tile(Icons.support_agent, 'GigaTech Support', 'Dedicated support'),
+          tile(Icons.support_agent, 'Quantix Support', 'Dedicated support'),
         ]),
       );
     }

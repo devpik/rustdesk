@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -15,7 +16,9 @@ import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_workers/utils/debouncer.dart';
+import 'package:http/http.dart' as http;
 import 'package:scroll_pos/scroll_pos.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -651,7 +654,7 @@ class _DesktopTabState extends State<DesktopTab>
                         Offstage(
                             offstage: !showTitle,
                             child: const Text(
-                              "GigaTech Remoto",
+                              "Quantix Remoto",
                               style: TextStyle(
                                   fontSize: 13, fontWeight: FontWeight.w700),
                             ).marginOnly(left: 2))
@@ -776,6 +779,7 @@ class WindowActionPanelState extends State<WindowActionPanel> {
             return Offstage();
           }
         }),
+        if (widget.isMainWindow) const _QuantixTopBarActions(),
         if (widget.tail != null) widget.tail!,
         if (!kUseCompatibleUiMode)
           Row(
@@ -1548,5 +1552,629 @@ class TabbarTheme extends ThemeExtension<TabbarTheme> {
 
   static color(BuildContext context) {
     return Theme.of(context).extension<ColorThemeExtension>()!;
+  }
+}
+
+
+class _QuantixTopBarActions extends StatefulWidget {
+  const _QuantixTopBarActions({Key? key}) : super(key: key);
+
+  @override
+  State<_QuantixTopBarActions> createState() => _QuantixTopBarActionsState();
+}
+
+class _QuantixTopBarActionsState extends State<_QuantixTopBarActions> {
+  static const List<Map<String, String>> _langs = [
+    {'key': 'pt-br', 'short': 'PT', 'label': 'Português (Brasil)'},
+    {'key': 'en', 'short': 'EN', 'label': 'English'},
+    {'key': 'es', 'short': 'ES', 'label': 'Español'},
+    {'key': 'fr', 'short': 'FR', 'label': 'Français'},
+    {'key': 'de', 'short': 'DE', 'label': 'Deutsch'},
+  ];
+
+  bool _checkingUpdate = false;
+
+  String _activeLangCode() {
+    String raw = '';
+    try {
+      raw = bind.mainGetLocalOption(key: kCommConfKeyLang).trim().toLowerCase();
+    } catch (_) {}
+    if (raw.isEmpty) {
+      raw = localeName.toLowerCase();
+    }
+    if (raw.startsWith('pt')) return 'pt';
+    if (raw.startsWith('es')) return 'es';
+    if (raw.startsWith('fr')) return 'fr';
+    if (raw.startsWith('de')) return 'de';
+    return 'en';
+  }
+
+  String _activeShortLabel() {
+    switch (_activeLangCode()) {
+      case 'pt':
+        return 'PT';
+      case 'es':
+        return 'ES';
+      case 'fr':
+        return 'FR';
+      case 'de':
+        return 'DE';
+      default:
+        return 'EN';
+    }
+  }
+
+  Map<String, String> _tr(String lang) {
+    switch (lang) {
+      case 'pt':
+        return {
+          'fbTip': 'Sugestões & Bugs',
+          'fbTitle': 'Sugestões, Dúvidas & Bugs',
+          'fbCat': 'Categoria',
+          'fbCatSug': 'Sugestão de Melhoria',
+          'fbCatFeat': 'Nova Funcionalidade',
+          'fbCatBug': 'Relatar Bug / Erro',
+          'fbCatDoubt': 'Dúvida',
+          'fbCatCrit': 'Crítica',
+          'fbSubj': 'Assunto (opcional)',
+          'fbEmail': 'Seu e-mail para retorno',
+          'fbMsg': 'Descreva sua mensagem *',
+          'fbSend': 'Enviar Feedback',
+          'fbCancel': 'Cancelar',
+          'fbMinErr': 'Digite pelo menos 5 caracteres na mensagem.',
+          'fbOk': 'Feedback enviado para a equipe Quantix! Obrigado.',
+          'fbErr': 'Não foi possível enviar o feedback.',
+          'updTip': 'Verificar Atualizações',
+          'updTitle': 'Atualização do Quantix Remote',
+          'updLatest': 'Você já está utilizando a versão mais recente.',
+          'updNew': 'Nova versão disponível!',
+          'updCur': 'Versão atual',
+          'updAvail': 'Versão no servidor',
+          'updDownload': 'Baixar Nova Versão (.EXE)',
+          'updClose': 'Fechar',
+          'updFail': 'Não foi possível consultar o servidor de atualizações agora.',
+          'langTip': 'Idioma (PT / EN / ES / FR / DE)',
+          'themeTip': 'Alternar Tema Claro / Escuro',
+        };
+      case 'es':
+        return {
+          'fbTip': 'Sugerencias y Bugs',
+          'fbTitle': 'Sugerencias, Dudas y Bugs',
+          'fbCat': 'Categoría',
+          'fbCatSug': 'Sugerencia de Mejora',
+          'fbCatFeat': 'Nueva Funcionalidad',
+          'fbCatBug': 'Reportar Bug / Error',
+          'fbCatDoubt': 'Duda',
+          'fbCatCrit': 'Crítica',
+          'fbSubj': 'Asunto (opcional)',
+          'fbEmail': 'Tu correo de contacto',
+          'fbMsg': 'Describe tu mensaje *',
+          'fbSend': 'Enviar Feedback',
+          'fbCancel': 'Cancelar',
+          'fbMinErr': 'Escribe al menos 5 caracteres en el mensaje.',
+          'fbOk': '¡Feedback enviado al equipo Quantix! Gracias.',
+          'fbErr': 'No se pudo enviar el feedback.',
+          'updTip': 'Buscar Actualizaciones',
+          'updTitle': 'Actualización de Quantix Remote',
+          'updLatest': 'Ya estás usando la versión más reciente.',
+          'updNew': '¡Nueva versión disponible!',
+          'updCur': 'Versión actual',
+          'updAvail': 'Versión en el servidor',
+          'updDownload': 'Descargar Nueva Versión (.EXE)',
+          'updClose': 'Cerrar',
+          'updFail': 'No se pudo consultar el servidor de actualizaciones.',
+          'langTip': 'Idioma (PT / EN / ES / FR / DE)',
+          'themeTip': 'Cambiar Tema Claro / Oscuro',
+        };
+      case 'fr':
+        return {
+          'fbTip': 'Suggestions & Bugs',
+          'fbTitle': 'Suggestions, Questions & Bugs',
+          'fbCat': 'Catégorie',
+          'fbCatSug': 'Suggestion d’amélioration',
+          'fbCatFeat': 'Nouvelle fonctionnalité',
+          'fbCatBug': 'Signaler un bug / erreur',
+          'fbCatDoubt': 'Question',
+          'fbCatCrit': 'Critique',
+          'fbSubj': 'Sujet (optionnel)',
+          'fbEmail': 'Votre e-mail de contact',
+          'fbMsg': 'Décrivez votre message *',
+          'fbSend': 'Envoyer',
+          'fbCancel': 'Annuler',
+          'fbMinErr': 'Veuillez saisir au moins 5 caractères.',
+          'fbOk': 'Feedback envoyé à l’équipe Quantix ! Merci.',
+          'fbErr': 'Impossible d’envoyer le feedback.',
+          'updTip': 'Vérifier les mises à jour',
+          'updTitle': 'Mise à jour Quantix Remote',
+          'updLatest': 'Vous utilisez déjà la dernière version.',
+          'updNew': 'Nouvelle version disponible !',
+          'updCur': 'Version actuelle',
+          'updAvail': 'Version sur le serveur',
+          'updDownload': 'Télécharger (.EXE)',
+          'updClose': 'Fermer',
+          'updFail': 'Impossible de joindre le serveur de mises à jour.',
+          'langTip': 'Langue (PT / EN / ES / FR / DE)',
+          'themeTip': 'Basculer Thème Clair / Sombre',
+        };
+      case 'de':
+        return {
+          'fbTip': 'Vorschläge & Bugs',
+          'fbTitle': 'Vorschläge, Fragen & Bugs',
+          'fbCat': 'Kategorie',
+          'fbCatSug': 'Verbesserungsvorschlag',
+          'fbCatFeat': 'Neue Funktion',
+          'fbCatBug': 'Bug / Fehler melden',
+          'fbCatDoubt': 'Frage',
+          'fbCatCrit': 'Kritik',
+          'fbSubj': 'Betreff (optional)',
+          'fbEmail': 'Ihre E-Mail-Adresse',
+          'fbMsg': 'Nachricht eingeben *',
+          'fbSend': 'Senden',
+          'fbCancel': 'Abbrechen',
+          'fbMinErr': 'Bitte geben Sie mindestens 5 Zeichen ein.',
+          'fbOk': 'Feedback an das Quantix-Team gesendet! Vielen Dank.',
+          'fbErr': 'Feedback konnte nicht gesendet werden.',
+          'updTip': 'Nach Updates suchen',
+          'updTitle': 'Quantix Remote Update',
+          'updLatest': 'Sie verwenden bereits die neueste Version.',
+          'updNew': 'Neue Version verfügbar!',
+          'updCur': 'Aktuelle Version',
+          'updAvail': 'Server-Version',
+          'updDownload': 'Neue Version herunterladen (.EXE)',
+          'updClose': 'Schließen',
+          'updFail': 'Update-Server derzeit nicht erreichbar.',
+          'langTip': 'Sprache (PT / EN / ES / FR / DE)',
+          'themeTip': 'Helles / Dunkles Design wechseln',
+        };
+      default:
+        return {
+          'fbTip': 'Feedback & Bugs',
+          'fbTitle': 'Suggestions, Questions & Bugs',
+          'fbCat': 'Category',
+          'fbCatSug': 'Improvement Suggestion',
+          'fbCatFeat': 'New Feature Request',
+          'fbCatBug': 'Report Bug / Issue',
+          'fbCatDoubt': 'Question',
+          'fbCatCrit': 'Criticism',
+          'fbSubj': 'Subject (optional)',
+          'fbEmail': 'Your reply email',
+          'fbMsg': 'Describe your message *',
+          'fbSend': 'Send Feedback',
+          'fbCancel': 'Cancel',
+          'fbMinErr': 'Please enter at least 5 characters.',
+          'fbOk': 'Feedback sent to the Quantix team! Thank you.',
+          'fbErr': 'Failed to send feedback.',
+          'updTip': 'Check for Updates',
+          'updTitle': 'Quantix Remote Update',
+          'updLatest': 'You are already running the latest version.',
+          'updNew': 'A new version is available!',
+          'updCur': 'Current version',
+          'updAvail': 'Server version',
+          'updDownload': 'Download New Version (.EXE)',
+          'updClose': 'Close',
+          'updFail': 'Unable to check update server right now.',
+          'langTip': 'Language (PT / EN / ES / FR / DE)',
+          'themeTip': 'Toggle Light / Dark Theme',
+        };
+    }
+  }
+
+  void _openFeedbackDialog() {
+    final lang = _activeLangCode();
+    final t = _tr(lang);
+    String category = 'suggestion';
+    String statusErr = '';
+    bool sending = false;
+    final subjCtrl = TextEditingController();
+    final defaultUser = gFFI.userModel.userName.value.trim();
+    final emailCtrl = TextEditingController(
+      text: defaultUser.contains('@') ? defaultUser : '',
+    );
+    final msgCtrl = TextEditingController();
+
+    gFFI.dialogManager.show((setState, close, context) {
+      Future<void> submit() async {
+        final msg = msgCtrl.text.trim();
+        if (msg.length < 5) {
+          setState(() => statusErr = t['fbMinErr']!);
+          return;
+        }
+        setState(() {
+          sending = true;
+          statusErr = '';
+        });
+        try {
+          final machineId = gFFI.serverModel.serverId.text.trim();
+          final res = await http
+              .post(
+                Uri.parse(
+                    'https://www.2048quantix.com/portal/api.php?action=submit_feedback'),
+                headers: {'Content-Type': 'application/json'},
+                body: jsonEncode({
+                  'product': 'remote',
+                  'source': 'desktop',
+                  'category': category,
+                  'subject': subjCtrl.text.trim(),
+                  'user_email': emailCtrl.text.trim(),
+                  'user_name': gFFI.userModel.displayNameOrUserName.trim(),
+                  'machine_id': machineId,
+                  'app_version': version.isNotEmpty ? version : '1.5.2',
+                  'lang': lang,
+                  'message': msg,
+                }),
+              )
+              .timeout(const Duration(seconds: 10));
+          final data = jsonDecode(res.body);
+          if (res.statusCode == 200 && data is Map && data['ok'] == true) {
+            close();
+            showToast(t['fbOk']!);
+          } else {
+            final errMsg = (data is Map && data['error'] != null)
+                ? data['error'].toString()
+                : t['fbErr']!;
+            setState(() {
+              sending = false;
+              statusErr = errMsg;
+            });
+          }
+        } catch (_) {
+          setState(() {
+            sending = false;
+            statusErr = t['fbErr']!;
+          });
+        }
+      }
+
+      return CustomAlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.lightbulb_outline_rounded,
+                color: Color(0xFFF59E0B), size: 22),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(t['fbTitle']!,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 420, maxWidth: 480),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t['fbCat']!,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: Theme.of(context).dividerColor.withOpacity(0.5)),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: category,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(
+                          value: 'suggestion', child: Text(t['fbCatSug']!)),
+                      DropdownMenuItem(
+                          value: 'feature', child: Text(t['fbCatFeat']!)),
+                      DropdownMenuItem(
+                          value: 'bug', child: Text(t['fbCatBug']!)),
+                      DropdownMenuItem(
+                          value: 'doubt', child: Text(t['fbCatDoubt']!)),
+                      DropdownMenuItem(
+                          value: 'criticism', child: Text(t['fbCatCrit']!)),
+                    ],
+                    onChanged: sending
+                        ? null
+                        : (v) {
+                            if (v != null) setState(() => category = v);
+                          },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: subjCtrl,
+                enabled: !sending,
+                decoration: InputDecoration(
+                  labelText: t['fbSubj']!,
+                  isDense: true,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: emailCtrl,
+                enabled: !sending,
+                decoration: InputDecoration(
+                  labelText: t['fbEmail']!,
+                  isDense: true,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: msgCtrl,
+                enabled: !sending,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: t['fbMsg']!,
+                  alignLabelWithHint: true,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              if (statusErr.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(statusErr,
+                      style:
+                          const TextStyle(color: Colors.redAccent, fontSize: 12)),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          dialogButton(t['fbCancel']!,
+              onPressed: sending ? null : () => close(), isOutline: true),
+          dialogButton(t['fbSend']!, onPressed: sending ? null : submit),
+        ],
+        onCancel: close,
+      );
+    });
+  }
+
+  int _compareSemver(String a, String b) {
+    final pa = a
+        .replaceAll(RegExp(r'[^0-9.]'), '')
+        .split('.')
+        .where((e) => e.isNotEmpty)
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
+    final pb = b
+        .replaceAll(RegExp(r'[^0-9.]'), '')
+        .split('.')
+        .where((e) => e.isNotEmpty)
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
+    final n = pa.length > pb.length ? pa.length : pb.length;
+    for (int i = 0; i < n; i++) {
+      final va = i < pa.length ? pa[i] : 0;
+      final vb = i < pb.length ? pb[i] : 0;
+      if (va != vb) return va.compareTo(vb);
+    }
+    return 0;
+  }
+
+  Future<void> _checkUpdates() async {
+    if (_checkingUpdate) return;
+    setState(() => _checkingUpdate = true);
+    final lang = _activeLangCode();
+    final t = _tr(lang);
+    final curVer = version.isNotEmpty ? version : '1.5.2';
+    Map<String, dynamic>? manifest;
+
+    for (final url in const [
+      'https://remote.2048quantix.com/downloads/manifest.json',
+      'https://remote.2048quantix.com/api/version',
+    ]) {
+      try {
+        final res =
+            await http.get(Uri.parse(url)).timeout(const Duration(seconds: 6));
+        if (res.statusCode == 200) {
+          final parsed = jsonDecode(res.body);
+          if (parsed is Map<String, dynamic> &&
+              (parsed['version']?.toString().isNotEmpty ?? false)) {
+            manifest = parsed;
+            break;
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (mounted) {
+      setState(() => _checkingUpdate = false);
+    }
+
+    if (manifest == null) {
+      showToast(t['updFail']!);
+      return;
+    }
+
+    final remoteVer = manifest['version']?.toString() ?? curVer;
+    final dlUrl = manifest['download_url']?.toString() ??
+        'https://remote.2048quantix.com/download/QuantixRemoto.exe';
+    final hasUpdate = _compareSemver(remoteVer, curVer) > 0;
+
+    gFFI.dialogManager.show((setState, close, context) {
+      return CustomAlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              hasUpdate ? Icons.system_update_alt_rounded : Icons.verified_rounded,
+              color: hasUpdate ? const Color(0xFF55D8CC) : const Color(0xFF10B981),
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(t['updTitle']!,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 340, maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(hasUpdate ? t['updNew']! : t['updLatest']!,
+                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
+              Text('${t['updCur']!}: v$curVer',
+                  style: const TextStyle(fontSize: 12.5)),
+              Text('${t['updAvail']!}: v$remoteVer',
+                  style: const TextStyle(fontSize: 12.5)),
+            ],
+          ),
+        ),
+        actions: [
+          dialogButton(t['updClose']!, onPressed: close, isOutline: hasUpdate),
+          if (hasUpdate)
+            dialogButton(t['updDownload']!, onPressed: () {
+              close();
+              launchUrlString(dlUrl);
+            }),
+        ],
+        onCancel: close,
+      );
+    });
+  }
+
+  Future<void> _selectLanguage(String langKey) async {
+    await bind.mainSetLocalOption(key: kCommConfKeyLang, value: langKey);
+    if (isWeb) {
+      reloadCurrentWindow();
+    } else {
+      bind.mainChangeLanguage(lang: langKey);
+      reloadAllWindows();
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleTheme() async {
+    final isDark = MyTheme.currentThemeMode() == ThemeMode.dark;
+    await MyTheme.changeDarkMode(isDark ? ThemeMode.light : ThemeMode.dark);
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = _activeLangCode();
+    final t = _tr(lang);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = MyTheme.tabbar(context).unSelectedIconColor;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Tooltip(
+          message: t['fbTip']!,
+          waitDuration: const Duration(milliseconds: 500),
+          child: InkWell(
+            onTap: _openFeedbackDialog,
+            hoverColor: MyTheme.tabbar(context).hoverColor,
+            child: SizedBox(
+              height: _kTabBarHeight - 1,
+              width: _kTabBarHeight,
+              child: const Icon(
+                Icons.lightbulb_outline_rounded,
+                size: 15,
+                color: Color(0xFFF59E0B),
+              ),
+            ),
+          ),
+        ),
+        Tooltip(
+          message: t['updTip']!,
+          waitDuration: const Duration(milliseconds: 500),
+          child: InkWell(
+            onTap: _checkingUpdate ? null : _checkUpdates,
+            hoverColor: MyTheme.tabbar(context).hoverColor,
+            child: SizedBox(
+              height: _kTabBarHeight - 1,
+              width: _kTabBarHeight,
+              child: _checkingUpdate
+                  ? Padding(
+                      padding: const EdgeInsets.all(7),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.8,
+                        color: iconColor,
+                      ),
+                    )
+                  : Icon(
+                      Icons.sync_rounded,
+                      size: 15,
+                      color: iconColor,
+                    ),
+            ),
+          ),
+        ),
+        Tooltip(
+          message: t['langTip']!,
+          waitDuration: const Duration(milliseconds: 500),
+          child: PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            tooltip: '',
+            onSelected: _selectLanguage,
+            itemBuilder: (ctx) => _langs
+                .map((l) => PopupMenuItem<String>(
+                      value: l['key']!,
+                      height: 32,
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 28,
+                            child: Text(l['short']!,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12)),
+                          ),
+                          Text(l['label']!,
+                              style: const TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ))
+                .toList(),
+            child: Container(
+              height: 21,
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: (iconColor ?? Colors.grey).withOpacity(0.28),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.language_rounded, size: 12, color: iconColor),
+                  const SizedBox(width: 3),
+                  Text(
+                    _activeShortLabel(),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: iconColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Tooltip(
+          message: t['themeTip']!,
+          waitDuration: const Duration(milliseconds: 500),
+          child: InkWell(
+            onTap: _toggleTheme,
+            hoverColor: MyTheme.tabbar(context).hoverColor,
+            child: SizedBox(
+              height: _kTabBarHeight - 1,
+              width: _kTabBarHeight,
+              child: Icon(
+                isDark ? Icons.wb_sunny_rounded : Icons.nightlight_round,
+                size: 15,
+                color: isDark ? const Color(0xFFF59E0B) : const Color(0xFFD97706),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

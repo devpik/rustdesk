@@ -43,8 +43,8 @@ fn finish_macos_update(result: hbb_common::ResultType<()>) -> Option<CoreMainAct
 /// If it returns [`Some`], the action determines whether to start the UI or report failure.
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub fn core_main() -> Option<CoreMainAction> {
-    *hbb_common::config::PROD_RENDEZVOUS_SERVER.write().unwrap() = "remote.getgigatech.com".to_owned();
-    *hbb_common::config::APP_NAME.write().unwrap() = "GigaTechRemoto".to_owned();
+    *hbb_common::config::PROD_RENDEZVOUS_SERVER.write().unwrap() = "remote.2048quantix.com".to_owned();
+    *hbb_common::config::APP_NAME.write().unwrap() = "QuantixRemoto".to_owned();
     if !crate::common::global_init() {
         return None;
     }
@@ -78,6 +78,8 @@ pub fn core_main() -> Option<CoreMainAction> {
                 "--rdp",
             ]
             .contains(&arg.as_str())
+                || arg.starts_with("quantix://")
+                || arg.starts_with("quantixremoto://")
                 || arg.starts_with("gigatech://")
                 || arg.starts_with("gigatechremoto://")
                 || arg.starts_with("rustdesk://")
@@ -767,7 +769,9 @@ fn core_main_invoke_new_connection(mut args: std::env::Args) -> Option<Vec<Strin
     let mut param_array = vec![];
     let mut uni_links = String::new();
     while let Some(arg) = args.next() {
-        if arg.starts_with("gigatech://")
+        if arg.starts_with("quantix://")
+            || arg.starts_with("quantixremoto://")
+            || arg.starts_with("gigatech://")
             || arg.starts_with("gigatechremoto://")
             || arg.starts_with("rustdesk://")
         {
@@ -920,5 +924,5 @@ fn parse_silent_install_args(args: &[String]) -> (Option<bool>, bool) {
 #[inline]
 fn is_quick_support_exe(exe: &str) -> bool {
     let exe = exe.to_lowercase();
-    exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe") || exe.contains("gigatech")
+    exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe") || exe.contains("quantix") || exe.contains("gigatech")
 }

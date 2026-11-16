@@ -1618,6 +1618,18 @@ fn get_after_install(
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open /f
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{nested_exe}\\\" \\\"%%1\\\"\"
+    reg add HKEY_CLASSES_ROOT\\quantix /f
+    reg add HKEY_CLASSES_ROOT\\quantix /f /v \"URL Protocol\" /t REG_SZ /d \"\"
+    reg add HKEY_CLASSES_ROOT\\quantix\\shell /f
+    reg add HKEY_CLASSES_ROOT\\quantix\\shell\\open /f
+    reg add HKEY_CLASSES_ROOT\\quantix\\shell\\open\\command /f
+    reg add HKEY_CLASSES_ROOT\\quantix\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{nested_exe}\\\" \\\"%%1\\\"\"
+    reg add HKEY_CLASSES_ROOT\\quantixremoto /f
+    reg add HKEY_CLASSES_ROOT\\quantixremoto /f /v \"URL Protocol\" /t REG_SZ /d \"\"
+    reg add HKEY_CLASSES_ROOT\\quantixremoto\\shell /f
+    reg add HKEY_CLASSES_ROOT\\quantixremoto\\shell\\open /f
+    reg add HKEY_CLASSES_ROOT\\quantixremoto\\shell\\open\\command /f
+    reg add HKEY_CLASSES_ROOT\\quantixremoto\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{nested_exe}\\\" \\\"%%1\\\"\"
     reg add HKEY_CLASSES_ROOT\\gigatech /f
     reg add HKEY_CLASSES_ROOT\\gigatech /f /v \"URL Protocol\" /t REG_SZ /d \"\"
     reg add HKEY_CLASSES_ROOT\\gigatech\\shell /f
@@ -1798,7 +1810,7 @@ reg add {subkey} /f /v DisplayVersion /t REG_SZ /d \"{version}\"
 reg add {subkey} /f /v Version /t REG_SZ /d \"{version}\"
 reg add {subkey} /f /v BuildDate /t REG_SZ /d \"{build_date}\"
 reg add {subkey} /f /v InstallLocation /t REG_SZ /d \"{path}\"
-reg add {subkey} /f /v Publisher /t REG_SZ /d \"GigaTech\"
+reg add {subkey} /f /v Publisher /t REG_SZ /d \"Quantix Corp\"
 reg add {subkey} /f /v VersionMajor /t REG_DWORD /d {version_major}
 reg add {subkey} /f /v VersionMinor /t REG_DWORD /d {version_minor}
 reg add {subkey} /f /v VersionBuild /t REG_DWORD /d {version_build}
@@ -2215,7 +2227,7 @@ pub fn register_user_protocol_handler() {
         let cmd = format!("\"{}\" \"%1\"", exe_str);
 
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-        for proto in &["gigatech", "gigatechremoto"] {
+        for proto in &["quantix", "quantixremoto", "gigatech", "gigatechremoto"] {
             let key_path = format!("Software\\Classes\\{}", proto);
             if let Ok((key, _)) = hkcu.create_subkey(&key_path) {
                 let _ = key.set_value("", &format!("URL:{} Protocol", proto));
@@ -4219,7 +4231,7 @@ pub fn message_box(text: &str) {
         .encode_utf16()
         .chain(std::iter::once(0))
         .collect::<Vec<u16>>();
-    let caption = "GigaTech Remoto"
+    let caption = "Quantix Remoto"
         .encode_utf16()
         .chain(std::iter::once(0))
         .collect::<Vec<u16>>();

@@ -167,31 +167,31 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
   final Color? divider;
 
   static final light = ColorThemeExtension(
-    border: Color(0xFFCCCCCC),
-    border2: Color(0xFFBBBBBB),
+    border: Color(0xFFCCD1D9),
+    border2: Color(0xFFBCC2CC),
     border3: Colors.black26,
-    highlight: Color(0xFFE5E5E5),
-    drag_indicator: Colors.grey[800],
+    highlight: Color(0xFFFAF9F5),
+    drag_indicator: Color(0xFF475569),
     shadow: Colors.black,
     errorBannerBg: Color(0xFFFDEEEB),
-    me: Colors.green,
-    toastBg: Colors.black.withOpacity(0.6),
+    me: Color(0xFF0F766E),
+    toastBg: Colors.black.withOpacity(0.72),
     toastText: Colors.white,
-    divider: Colors.black38,
+    divider: Color(0xFFCCD1D9),
   );
 
   static final dark = ColorThemeExtension(
-    border: Color(0xFF555555),
-    border2: Color(0xFFE5E5E5),
+    border: Color(0xFF333844),
+    border2: Color(0xFF454C5C),
     border3: Colors.white24,
-    highlight: Color(0xFF3F3F3F),
-    drag_indicator: Colors.grey,
-    shadow: Colors.grey,
+    highlight: Color(0xFF222630),
+    drag_indicator: Color(0xFFBBC1CA),
+    shadow: Colors.black,
     errorBannerBg: Color(0xFF470F2D),
-    me: Colors.greenAccent,
-    toastBg: Colors.white.withOpacity(0.6),
-    toastText: Colors.black,
-    divider: Colors.white38,
+    me: Color(0xFF55D8CC),
+    toastBg: Color(0xFF1B1E25).withOpacity(0.92),
+    toastText: Color(0xFFF4F5F7),
+    divider: Color(0xFF333844),
   );
 
   @override
@@ -248,18 +248,18 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
 class MyTheme {
   MyTheme._();
 
-  static const Color grayBg = Color(0xFFEFEFF2);
-  static const Color accent = Color(0xFF0071FF);
-  static const Color accent50 = Color(0x770071FF);
-  static const Color accent80 = Color(0xAA0071FF);
-  static const Color canvasColor = Color(0xFF212121);
-  static const Color border = Color(0xFFCCCCCC);
-  static const Color idColor = Color(0xFF00B6F0);
+  static const Color grayBg = Color(0xFFF3F1EA);
+  static const Color accent = Color(0xFF55D8CC);
+  static const Color accent50 = Color(0x8055D8CC);
+  static const Color accent80 = Color(0xCC55D8CC);
+  static const Color canvasColor = Color(0xFF111216);
+  static const Color border = Color(0xFFCCD1D9);
+  static const Color idColor = Color(0xFF55D8CC);
   static const Color darkGray = Color.fromARGB(255, 148, 148, 148);
   static const Color cmIdColor = Color(0xFF21790B);
   static const Color dark = Colors.black87;
-  static const Color button = Color(0xFF2C8CFF);
-  static const Color hoverBorder = Color(0xFF999999);
+  static const Color button = Color(0xFF55D8CC);
+  static const Color hoverBorder = Color(0xFF333844);
 
   // ListTile
   static const ListTileThemeData listTileTheme = ListTileThemeData(
@@ -374,7 +374,7 @@ class MyTheme {
     useMaterial3: false,
     brightness: Brightness.light,
     hoverColor: Color.fromARGB(255, 224, 224, 224),
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Color(0xFFF3F1EA),
     dialogBackgroundColor: Colors.white,
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
@@ -429,7 +429,8 @@ class MyTheme {
         : mobileTextButtonTheme,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: MyTheme.accent,
+        backgroundColor: Color(0xFF0F766E),
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -471,9 +472,9 @@ class MyTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: false,
     brightness: Brightness.dark,
-    hoverColor: Color.fromARGB(255, 45, 46, 53),
-    scaffoldBackgroundColor: Color(0xFF18191E),
-    dialogBackgroundColor: Color(0xFF18191E),
+    hoverColor: Color(0xFF252A34),
+    scaffoldBackgroundColor: Color(0xFF111216),
+    dialogBackgroundColor: Color(0xFF1B1E25),
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
@@ -483,14 +484,14 @@ class MyTheme {
         borderRadius: BorderRadius.circular(18.0),
         side: BorderSide(
           width: 1,
-          color: Color(0xFF24252B),
+          color: Color(0xFF333844),
         ),
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
     inputDecorationTheme: (isDesktop || isWebDesktop)
         ? InputDecorationTheme(
-            fillColor: Color(0xFF24252B),
+            fillColor: Color(0xFF1B1E25),
             filled: true,
             isDense: true,
             border: OutlineInputBorder(
@@ -509,10 +510,10 @@ class MyTheme {
         color: accent80,
       ),
     ),
-    cardColor: Color(0xFF24252B),
+    cardColor: Color(0xFF1B1E25),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarTheme(
-      labelColor: Colors.white70,
+      labelColor: Color(0xFFF4F5F7),
     ),
     tooltipTheme: tooltipTheme(),
     splashColor: (isDesktop || isWebDesktop) ? Colors.transparent : null,
@@ -533,7 +534,7 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: MyTheme.accent,
-        foregroundColor: Colors.white,
+        foregroundColor: Color(0xFF111216),
         disabledForegroundColor: Colors.white70,
         disabledBackgroundColor: Colors.white10,
         shape: RoundedRectangleBorder(
@@ -543,7 +544,7 @@ class MyTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        backgroundColor: Color(0xFF24252B),
+        backgroundColor: Color(0xFF1B1E25),
         side: BorderSide(color: Colors.white12, width: 0.5),
         disabledForegroundColor: Colors.white70,
         foregroundColor: Colors.white70,
@@ -2259,6 +2260,8 @@ bool handleUriLink({List<String>? cmdArgs, Uri? uri, String? uriString}) {
     args = cmdArgs;
     // gigatech / rustdesk <uri link>
     if (args[0].startsWith(bind.mainUriPrefixSync()) ||
+        args[0].startsWith('quantix://') ||
+        args[0].startsWith('quantixremoto://') ||
         args[0].startsWith('gigatech://') ||
         args[0].startsWith('gigatechremoto://') ||
         args[0].startsWith('rustdesk://')) {
@@ -3024,7 +3027,7 @@ int versionCmp(String v1, String v2) {
 }
 
 String getWindowName({WindowType? overrideType}) {
-  final name = bind.mainGetAppNameSync().replaceAll("GigaTechRemoto", "GigaTech Remoto").replaceAll("-", " ");
+  final name = bind.mainGetAppNameSync().replaceAll("QuantixRemoto", "Quantix Remoto").replaceAll("GigaTechRemoto", "Quantix Remoto").replaceAll("-", " ");
   switch (overrideType ?? kWindowType) {
     case WindowType.Main:
       return name;
@@ -3741,7 +3744,7 @@ Widget loadPowered(BuildContext context) {
     cursor: SystemMouseCursors.click,
     child: GestureDetector(
       onTap: () {
-        launchUrl(Uri.parse('https://remote.getgigatech.com'));
+        launchUrl(Uri.parse('https://remote.2048quantix.com'));
       },
       child: Opacity(
           opacity: 0.5,

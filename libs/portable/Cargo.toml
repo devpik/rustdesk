@@ -27,11 +27,11 @@ windows = { version = "0.61", features = [
 native-windows-gui = {version = "1.0", default-features = false, features = ["animation-timer", "image-decoder"]}
 
 [package.metadata.winres]
-CompanyName = "GigaTech"
-LegalCopyright = "Copyright © 2026 GigaTech. Todos os direitos reservados."
-ProductName = "GigaTech Remoto"
-OriginalFilename = "GigaTechRemoto.exe"
-FileDescription = "GigaTech Remoto"
+CompanyName = "Quantix Corp"
+LegalCopyright = "Copyright © 2026 Quantix Corp. Todos os direitos reservados."
+ProductName = "Quantix Remoto"
+OriginalFilename = "QuantixRemoto.exe"
+FileDescription = "Quantix Remoto"
 #ProductVersion = ""
 
 [target.'cfg(target_os="windows")'.build-dependencies]
