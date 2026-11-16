@@ -110,6 +110,7 @@ jobs:
       target: windows-2022
       platform: x64
       configuration: Release
+      target_version: Windows10
 
   build-windows-x64:
     name: x86_64-pc-windows-msvc
