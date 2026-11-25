@@ -80,18 +80,18 @@ fn make_tray() -> hbb_common::ResultType<()> {
     } else {
         tray_menu.append_items(&[&open_i]).ok();
     }
-    let display_name = "Quantix Remoto";
-    let tooltip = |count: usize| {
+    const DISPLAY_NAME: &str = "Quantix Remoto";
+    let tooltip = move |count: usize| {
         if count == 0 {
             format!(
                 "{} - {}",
-                display_name,
+                DISPLAY_NAME,
                 translate("Service is running".to_owned()),
             )
         } else {
             format!(
                 "{} - {}\n{}",
-                display_name,
+                DISPLAY_NAME,
                 translate("Ready".to_owned()),
                 translate("{".to_string() + &format!("{count}") + "} sessions"),
             )
