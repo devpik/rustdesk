@@ -321,7 +321,7 @@ mod win {
 
     // Used for privacy mode(magnifier impl).
     pub const RUNTIME_BROKER_EXE: &'static str = "C:\\Windows\\System32\\RuntimeBroker.exe";
-    pub const WIN_TOPMOST_INJECTED_PROCESS_EXE: &'static str = "RuntimeBroker_rustdesk.exe";
+    pub const WIN_TOPMOST_INJECTED_PROCESS_EXE: &'static str = "RuntimeBroker_quantix.exe";
 
     pub(super) fn schedule_verified_update_cleanup() -> std::io::Result<()> {
         use windows::{
@@ -363,8 +363,16 @@ mod win {
                 }
             }
         }
+        let legacy_file = dir.join("RuntimeBroker_rustdesk.exe");
+        if legacy_file.exists() {
+            let _allow_err = Command::new("taskkill")
+                .args(&["/F", "/IM", "RuntimeBroker_rustdesk.exe"])
+                .creation_flags(winapi::um::winbase::CREATE_NO_WINDOW)
+                .output();
+            let _allow_err = fs::remove_file(&legacy_file);
+        }
         let _allow_err = Command::new("taskkill")
-            .args(&["/F", "/IM", "RuntimeBroker_rustdesk.exe"])
+            .args(&["/F", "/IM", WIN_TOPMOST_INJECTED_PROCESS_EXE])
             .creation_flags(winapi::um::winbase::CREATE_NO_WINDOW)
             .output();
         let _allow_err = std::fs::copy(src, &format!("{}\\{}", dir.to_string_lossy(), tgt));

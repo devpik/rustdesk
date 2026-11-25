@@ -11,7 +11,7 @@ const RD_DRIVER_INF_PATH: &str = "drivers/GigaTechPrinterDriver/RustDeskPrinterD
 
 #[cfg(target_os = "windows")]
 fn get_printer_name(app_name: &str) -> Vec<u16> {
-    "GigaTech Remoto Printer".to_string()
+    "Quantix Remoto Printer".to_string()
         .encode_utf16()
         .chain(Some(0))
         .collect()
@@ -27,7 +27,7 @@ fn get_driver_name() -> Vec<u16> {
 
 #[cfg(target_os = "windows")]
 fn get_port_name(app_name: &str) -> Vec<u16> {
-    "GigaTech Remoto Printer".to_string()
+    "Quantix Remoto Printer".to_string()
         .encode_utf16()
         .chain(Some(0))
         .collect()

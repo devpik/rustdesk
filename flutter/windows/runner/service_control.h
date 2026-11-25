@@ -89,7 +89,10 @@ inline DWORD InstallService(const wchar_t* name, const wchar_t* executable,
   }
   const std::wstring binary_path =
       L"\"" + std::wstring(executable) + L"\" --service";
-  const std::wstring display_name = std::wstring(name) + L" Service";
+  const std::wstring display_name =
+      (std::wstring_view(name) == L"QuantixRemoto")
+          ? L"Quantix Remoto Service"
+          : (std::wstring(name) + L" Service");
   ServiceHandle manager(
       OpenSCManagerW(nullptr, nullptr,
                      SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE),
@@ -172,7 +175,7 @@ inline std::optional<DWORD> HandleCommand(const wchar_t* command_line) {
   LocalFree(args);
   if (result != ERROR_SUCCESS) {
     std::fwprintf(stderr,
-                  L"RustDesk service control failed with Windows error %lu\n",
+                  L"Quantix Remoto service control failed with Windows error %lu\n",
                   result);
   }
   return result;

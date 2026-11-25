@@ -20,6 +20,7 @@ import 'package:flutter_hbb/models/printer_model.dart';
 import 'package:flutter_hbb/models/server_model.dart';
 import 'package:flutter_hbb/models/shortcut_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
+import 'package:flutter_hbb/utils/quantix_updater.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -2605,6 +2606,16 @@ class _AboutState extends State<_About> {
               SelectionArea(
                   child: Text('${translate('Version')}: $version')
                       .marginSymmetric(vertical: 4.0)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    QuantixUpdater.checkForUpdatesInteractive(context);
+                  },
+                  icon: const Icon(Icons.system_update_alt, size: 16),
+                  label: const Text('Verificar Atualizações'),
+                ),
+              ),
               SelectionArea(
                   child: Text('${translate('Build Date')}: $buildDate')
                       .marginSymmetric(vertical: 4.0)),

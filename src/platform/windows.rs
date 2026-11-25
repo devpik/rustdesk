@@ -1649,6 +1649,18 @@ fn get_after_install(
     ", create_service=get_create_service(&exe))
 }
 
+fn legacy_cleanup_commands() -> &'static str {
+    "sc stop RustDesk > nul 2>&1\r\n\
+     sc delete RustDesk > nul 2>&1\r\n\
+     sc stop GigaTechRemoto > nul 2>&1\r\n\
+     sc delete GigaTechRemoto > nul 2>&1\r\n\
+     taskkill /F /IM rustdesk.exe > nul 2>&1\r\n\
+     taskkill /F /IM GigaTechRemoto.exe > nul 2>&1\r\n\
+     taskkill /F /IM RuntimeBroker_rustdesk.exe > nul 2>&1\r\n\
+     if exist \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\RustDesk Tray.lnk\" del /f /q \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\RustDesk Tray.lnk\" > nul 2>&1\r\n\
+     if exist \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GigaTechRemoto Tray.lnk\" del /f /q \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GigaTechRemoto Tray.lnk\" > nul 2>&1"
+}
+
 pub fn install_me(options: &str, path: String, silent: bool, debug: bool) -> ResultType<()> {
     // MSI and EXE installations use different registry layouts, so MSI-to-EXE upgrades are not supported.
     let (installed_subkey, _, _, _) = get_install_info();
@@ -1801,6 +1813,7 @@ copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\
         "
 {uninstall_str}
 chcp 65001
+{legacy_cleanup}
 md \"{path}\"
 {copy_exe}
 reg add {subkey} /f
@@ -1835,6 +1848,7 @@ copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
         dels = if debug { "" } else { &dels },
         copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,
         import_config = get_import_config(&exe),
+        legacy_cleanup = legacy_cleanup_commands(),
     );
     run_cmds(
         InstallCommands {
@@ -3681,6 +3695,7 @@ reg add {subkey} /f /v EstimatedSize /t REG_DWORD /d {size}
     let cmds = format!(
         "
 chcp 65001
+{legacy_cleanup}
 sc stop {app_name}
 taskkill /F /IM {app_name}.exe{filter}
 {reg_cmd}
@@ -3697,6 +3712,7 @@ taskkill /F /IM {app_name}.exe{filter}
         rename_exe = rename_exe_cmd(&src_exe, &path)?,
         remove_meta_toml = remove_meta_toml_cmd(is_msi.unwrap_or(true), &path),
         sleep = if debug { "timeout 300" } else { "" },
+        legacy_cleanup = legacy_cleanup_commands(),
     );
 
     let _restore_session_guard = crate::common::SimpleCallOnReturn {
@@ -4194,7 +4210,7 @@ pub fn try_kill_broker() {
     allow_err!(std::process::Command::new("cmd")
         .arg("/c")
         .arg(&format!(
-            "taskkill /F /IM {}",
+            "taskkill /F /IM {} > nul 2>&1 & taskkill /F /IM RuntimeBroker_rustdesk.exe > nul 2>&1",
             WIN_TOPMOST_INJECTED_PROCESS_EXE
         ))
         .creation_flags(winapi::um::winbase::CREATE_NO_WINDOW)

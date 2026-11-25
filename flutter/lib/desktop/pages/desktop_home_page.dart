@@ -19,6 +19,7 @@ import 'package:flutter_hbb/models/server_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
 import 'package:flutter_hbb/utils/multi_window_manager.dart';
 import 'package:flutter_hbb/utils/platform_channel.dart';
+import 'package:flutter_hbb/utils/quantix_updater.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,6 +57,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   String _bannerBtnText = 'Conhecer Planos & Vantagens';
   String _bannerUrl = 'https://remote.2048quantix.com/#planos';
   bool _bannerEnabled = true;
+  QuantixUpdateInfo? _quantixUpdate;
+  bool _quantixUpdateDismissed = false;
 
   final RxBool _editHover = false.obs;
   final RxBool _block = false.obs;
@@ -99,6 +102,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       buildTip(context),
       if (!isOutgoingOnly) buildIDBoard(context),
       if (!isOutgoingOnly) buildPasswordBoard(context),
+      if (_quantixUpdate != null && !_quantixUpdateDismissed)
+        buildQuantixUpdateBanner(context),
       if (_bannerEnabled) buildGigaTechCommercialCard(),
       FutureBuilder<Widget>(
         future: Future.value(
@@ -705,9 +710,129 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   }
 
 
+  void _checkQuantixUpdate() async {
+    try {
+      final currentVer = await bind.mainGetVersion();
+      final update =
+          await QuantixUpdater.fetchLatestUpdate(currentVersion: currentVer);
+      if (update != null && mounted) {
+        setState(() {
+          _quantixUpdate = update;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Widget buildQuantixUpdateBanner(BuildContext context) {
+    final info = _quantixUpdate;
+    if (info == null) return const SizedBox();
+    final canAutoUpdate = isWindows && bind.mainIsInstalled();
+    return Container(
+      margin: const EdgeInsets.only(top: 14, left: 16, right: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF064E3B),
+            Color(0xFF0F766E),
+          ],
+        ),
+        border: Border.all(color: const Color(0xFF34D399).withOpacity(0.7)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF10B981).withOpacity(0.22),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.system_update_alt,
+                  color: Color(0xFFA7F3D0), size: 17),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Nova versão disponível: v${info.version}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _quantixUpdateDismissed = true;
+                  });
+                },
+                child: const Icon(Icons.close,
+                    color: Color(0xFFD1FAE5), size: 16),
+              ),
+            ],
+          ),
+          if (info.notes.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              info.notes,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFFD1FAE5),
+                fontSize: 11,
+                height: 1.3,
+              ),
+            ),
+          ],
+          const SizedBox(height: 9),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                QuantixUpdater.startQuantixUpdateFlow(context, info);
+              },
+              icon: Icon(
+                canAutoUpdate ? Icons.autorenew : Icons.download,
+                size: 14,
+              ),
+              label: Text(
+                canAutoUpdate
+                    ? 'Atualizar Agora'
+                    : 'Baixar v${info.version}',
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF065F46),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _fetchCommercialBanner() async {
     try {
       String langParam = 'pt';
+      String verParam = '';
+      try {
+        verParam = await bind.mainGetVersion();
+      } catch (_) {}
       try {
         final saved = bind.mainGetLocalOption(key: kCommConfKeyLang).trim().toLowerCase();
         if (saved.startsWith('es')) {
@@ -723,7 +848,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         }
       } catch (_) {}
       final res = await http
-          .get(Uri.parse('https://remote.2048quantix.com/api/banner?lang=$langParam'))
+          .get(Uri.parse(
+              'https://remote.2048quantix.com/api/banner?lang=$langParam&ver=${Uri.encodeComponent(verParam)}'))
           .timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -906,6 +1032,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   @override
   void initState() {
     super.initState();
+    _checkQuantixUpdate();
     _fetchCommercialBanner();
     _updateTimer = periodic_immediate(const Duration(seconds: 1), () async {
       await gFFI.serverModel.fetchID();
